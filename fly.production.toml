@@ -1,0 +1,30 @@
+# 6million.istoria.app on fly.io (moved from Ploi big server, 2026-11).
+app = 'istoria-6million'
+primary_region = 'fra'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[deploy]
+  strategy = 'bluegreen'
+  wait_timeout = '10m'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Static page with little traffic: sleep when idle, wake on the next visit.
+  auto_stop_machines = 'suspend'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+  [[http_service.checks]]
+    grace_period = '30s'
+    interval = '15s'
+    timeout = '5s'
+    method = 'GET'
+    path = '/'
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '256mb'
